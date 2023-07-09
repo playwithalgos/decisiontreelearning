@@ -16,7 +16,7 @@
         .datasetchildren {
             display: grid;
             margin-left: 16px;
-            
+
             padding-left: 16px;
 
         }
@@ -27,15 +27,15 @@
 
         .currentAttribute {
             font-weight: bold;
-            border:2px solid black;
+            border: 2px solid black;
 
         }
 
-        
+
 
         .datasetnode {
             display: inline-flex;
-            margin-bottom: 16px;
+            margin-bottom: 2px;
         }
     </style>
 
@@ -140,7 +140,14 @@
                         elButtons.appendChild(button);
                         button.onclick = () => {
                             elChildren.innerHTML = "";
+                            const ell = document.createElement("div");
+                            ell.innerHTML = a;
+                            elChildren.appendChild(ell);
                             elChildren.appendChild(createElementDatasetNode(dataset.filter((m) => m[a])));
+
+                            const ell2 = document.createElement("div");
+                            ell2.innerHTML = "not " + a;
+                            elChildren.appendChild(ell2);
                             elChildren.appendChild(createElementDatasetNode(dataset.filter((m) => !m[a])));
                             for (const c of elButtons.children)
                                 c.classList.remove("currentAttribute");
