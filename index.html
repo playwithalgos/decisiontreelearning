@@ -6,7 +6,36 @@
 
     <style>
         .dataset {
-            width:256px;
+            width: 256px;
+            margin: 4px;
+            border: 1px solid gray;
+            padding: 4px;
+            border-radius: 16px;
+        }
+
+        .datasetchildren {
+            display: grid;
+            margin-left: 16px;
+            
+            padding-left: 16px;
+
+        }
+
+        .datasetchildren:not(:empty) {
+            border-left: 2px solid black;
+        }
+
+        .currentAttribute {
+            font-weight: bold;
+            border:2px solid black;
+
+        }
+
+        
+
+        .datasetnode {
+            display: inline-flex;
+            margin-bottom: 16px;
         }
     </style>
 
@@ -14,20 +43,22 @@
 
 <body>
     <h1>Decision tree learning</h1>
-    <div class="dataset" id="dataset"></div>
 
     <script>
         const dataset = [];
+        const attributes = ["dark", "spotted", "big", "thin", "radioactive"];
+
         function randomBoolean() {
             return Math.round(Math.random());
         }
-        for (let i = 0; i < 24; i++) {
+
+        for (let i = 0; i < 8; i++) {
             const mushroom = {
                 dark: randomBoolean(),
                 spotted: randomBoolean(),
                 big: randomBoolean(),
-                long: randomBoolean(),
-                sharp: randomBoolean(),
+                thin: randomBoolean(),
+                radioactive: randomBoolean(),
                 class: Math.round(Math.random())
             };
 
@@ -37,15 +68,26 @@
 
         function createMushRoomElement(mushroom) {
             const draw = SVG().addTo('#dataset').size(32, 64);
+
             draw.circle(16).move(8, 22).fill('bbbbbb').stroke("black");
-            draw.circle(30).move(0, 1).fill(mushroom.dark ? '#885555' : '#ccaaaa').stroke("black");
+            const head = draw.circle(30).move(0, 1).fill(mushroom.dark ? '#885555' : '#ccaaaa').stroke("black");
+
+            if (mushroom.radioactive)
+                head.animate({
+                    duration: 1000,
+                    delay: 0,
+                    when: 'now',
+                    swing: true,
+                    times: 5,
+                    wait: 0
+                }).attr({ fill: mushroom.dark ? '#55aa55' : '#ccffaa' }).loop();
 
             if (mushroom.spotted) {
                 draw.circle(8).move(16, 16).fill('orange').stroke("black");
                 draw.circle(8).move(10, 4).fill('orange').stroke("black");
                 draw.circle(8).move(5, 17).fill('orange').stroke("black");
             }
-            if (mushroom.long)
+            if (mushroom.thin)
                 draw.scale(0.6, 1);
             if (!mushroom.big)
                 draw.scale(0.7);
@@ -59,8 +101,92 @@
 
         }
 
-        for (const mushroom of dataset)
-            createMushRoomElement(mushroom);
+
+        function createElementDataset(dataset) {
+            const eldataset = document.createElement("div");
+            eldataset.classList.add("dataset");
+            eldataset.id = "dataset";
+            document.body.appendChild(eldataset); // for SVG.js
+            for (const mushroom of dataset)
+                createMushRoomElement(mushroom);
+            eldataset.id = null;
+            return eldataset;
+        }
+
+
+        function isPure(dataset) {
+            const dataset1 = dataset.filter((m) => m.class);
+            return dataset1.length == 0 || dataset1.length == dataset.length
+        }
+
+        function createElementDatasetNode(dataset) {
+            const el = document.createElement("div");
+            el.classList.add("datasetnode");
+
+            const eldataset = createElementDataset(dataset);
+            const eldatasetAndButton = document.createElement("div");
+
+            const elChildren = document.createElement("div");
+            elChildren.classList.add("datasetchildren")
+
+            const elButtons = document.createElement("div")
+            if (!isPure(dataset))
+                for (const a of attributes) {
+                    const gini = GiniImpurity(dataset, a);
+                    if (!isNaN(gini)) {
+                        const button = document.createElement("button");
+
+                        button.innerHTML = a + "<br/>(" + gini.toFixed(2) + ")";
+                        elButtons.appendChild(button);
+                        button.onclick = () => {
+                            elChildren.innerHTML = "";
+                            elChildren.appendChild(createElementDatasetNode(dataset.filter((m) => m[a])));
+                            elChildren.appendChild(createElementDatasetNode(dataset.filter((m) => !m[a])));
+                            for (const c of elButtons.children)
+                                c.classList.remove("currentAttribute");
+                            button.classList.add("currentAttribute");
+
+                        }
+                    }
+
+                }
+
+
+
+
+            eldatasetAndButton.appendChild(eldataset);
+            eldatasetAndButton.appendChild(elButtons);
+            el.appendChild(eldatasetAndButton);
+            el.appendChild(elChildren);
+
+            document.body.appendChild(el);
+
+            return el;
+
+        }
+
+        createElementDatasetNode(dataset);
+
+        function GiniImpurity(dataset, attribute) {
+            const dataset0 = dataset.filter((m) => !m[attribute]);
+            const dataset1 = dataset.filter((m) => m[attribute]);
+
+            const PXa0 = dataset0.length;
+            const PXa1 = dataset1.length;
+            const PY0Xa0 = dataset0.filter((m) => 1 - m.class).length / dataset0.length;
+            const PY1Xa0 = dataset0.filter((m) => m.class).length / dataset0.length;
+            const PY0Xa1 = dataset1.filter((m) => 1 - m.class).length / dataset1.length;
+            const PY1Xa1 = dataset1.filter((m) => m.class).length / dataset1.length;
+
+            function c(x) {
+                return x * (1 - x);
+            }
+            return PXa0 * (c(PY0Xa0) + c(PY1Xa0)) + PXa1 * (c(PY0Xa1) + c(PY1Xa1));
+        }
+
+        for (const a of attributes) {
+            console.log(a + ": " + GiniImpurity(dataset, a));
+        }
 
     </script>
 </body>
