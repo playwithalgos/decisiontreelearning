@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
+
+    <style>
+        .dataset {
+            width:256px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h1>Decision tree learning</h1>
+    <div class="dataset" id="dataset"></div>
+
+    <script>
+        const dataset = [];
+        function randomBoolean() {
+            return Math.round(Math.random());
+        }
+        for (let i = 0; i < 24; i++) {
+            const mushroom = {
+                dark: randomBoolean(),
+                spotted: randomBoolean(),
+                big: randomBoolean(),
+                long: randomBoolean(),
+                sharp: randomBoolean(),
+                class: Math.round(Math.random())
+            };
+
+            if (dataset.map(JSON.stringify).indexOf(JSON.stringify({ ...mushroom, class: 1 - mushroom.class })) == -1)
+                dataset.push(mushroom);
+        }
+
+        function createMushRoomElement(mushroom) {
+            const draw = SVG().addTo('#dataset').size(32, 64);
+            draw.circle(16).move(8, 22).fill('bbbbbb').stroke("black");
+            draw.circle(30).move(0, 1).fill(mushroom.dark ? '#885555' : '#ccaaaa').stroke("black");
+
+            if (mushroom.spotted) {
+                draw.circle(8).move(16, 16).fill('orange').stroke("black");
+                draw.circle(8).move(10, 4).fill('orange').stroke("black");
+                draw.circle(8).move(5, 17).fill('orange').stroke("black");
+            }
+            if (mushroom.long)
+                draw.scale(0.6, 1);
+            if (!mushroom.big)
+                draw.scale(0.7);
+
+            if (mushroom.class) {
+                draw.polyline([[16, 16], [24, 24], [32, 12]]).move(8, 40).stroke({ color: "green", width: 5 }).fill("none")
+            }
+            else {
+                draw.polyline([[0, 0], [16, 16], [8, 8], [16, 0], [0, 16]]).move(8, 40).stroke({ color: "red", width: 5 }).fill("none")
+            }
+
+        }
+
+        for (const mushroom of dataset)
+            createMushRoomElement(mushroom);
+
+    </script>
+</body>
