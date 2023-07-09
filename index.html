@@ -37,6 +37,11 @@
             display: inline-flex;
             margin-bottom: 2px;
         }
+
+
+        .info {
+            font-size: x-small;
+        }
     </style>
 
 </head>
@@ -52,7 +57,7 @@
             return Math.round(Math.random());
         }
 
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 12; i++) {
             const mushroom = {
                 dark: randomBoolean(),
                 spotted: randomBoolean(),
@@ -68,19 +73,20 @@
 
         function createMushRoomElement(mushroom) {
             const draw = SVG().addTo('#dataset').size(32, 64);
-
+            const colorHead = mushroom.dark ? '#885555' : '#ccaaaa'
             draw.circle(16).move(8, 22).fill('bbbbbb').stroke("black");
-            const head = draw.circle(30).move(0, 1).fill(mushroom.dark ? '#885555' : '#ccaaaa').stroke("black");
+            const head = draw.circle(30).move(0, 1).fill(colorHead).stroke("black");
 
             if (mushroom.radioactive)
-                head.animate({
-                    duration: 1000,
-                    delay: 0,
-                    when: 'now',
-                    swing: true,
-                    times: 5,
-                    wait: 0
-                }).attr({ fill: mushroom.dark ? '#55aa55' : '#ccffaa' }).loop();
+                head
+                    .animate({
+                        duration: 1000,
+                        delay: 0,
+                        when: 'now',
+                        swing: true,
+                        times: 5,
+                        wait: 0
+                    }).attr({ fill: mushroom.dark ? '#55aa55' : '#ccffaa' }).persist();
 
             if (mushroom.spotted) {
                 draw.circle(8).move(16, 16).fill('orange').stroke("black");
@@ -133,10 +139,14 @@
             if (!isPure(dataset))
                 for (const a of attributes) {
                     const gini = GiniImpurity(dataset, a);
+                    const entropy = EntropyImpurity(dataset, a);
+
                     if (!isNaN(gini)) {
                         const button = document.createElement("button");
 
-                        button.innerHTML = a + "<br/>(" + gini.toFixed(2) + ")";
+                        button.innerHTML = a +
+                            "<br/><span class='info'>gini: " + gini.toFixed(2) + "</span>" +
+                            "<br/><span class='info'>entropy: " + entropy.toFixed(2) + "</span>";
                         elButtons.appendChild(button);
                         button.onclick = () => {
                             elChildren.innerHTML = "";
@@ -191,8 +201,29 @@
             return PXa0 * (c(PY0Xa0) + c(PY1Xa0)) + PXa1 * (c(PY0Xa1) + c(PY1Xa1));
         }
 
-        for (const a of attributes) {
-            console.log(a + ": " + GiniImpurity(dataset, a));
+        function EntropyImpurity(dataset, attribute) {
+            const dataset0 = dataset.filter((m) => !m[attribute]);
+            const dataset1 = dataset.filter((m) => m[attribute]);
+
+            const PXa0 = dataset0.length;
+            const PXa1 = dataset1.length;
+            const PY0Xa0 = dataset0.filter((m) => 1 - m.class).length / dataset0.length;
+            const PY1Xa0 = dataset0.filter((m) => m.class).length / dataset0.length;
+            const PY0Xa1 = dataset1.filter((m) => 1 - m.class).length / dataset1.length;
+            const PY1Xa1 = dataset1.filter((m) => m.class).length / dataset1.length;
+
+       
+            function log2Corrected(x) {
+                if (x <= 0)
+                    return 0;
+                else return Math.log2(x);
+            }
+            return -(PY0Xa0 * log2Corrected(PY0Xa0 / PXa0)
+                + PY1Xa0 * log2Corrected(PY1Xa0 / PXa0)
+                + PY0Xa1 *log2Corrected(PY0Xa0 / PXa1)
+                + PY1Xa1 * log2Corrected(PY1Xa1 / PXa1));
+
+
         }
 
     </script>
