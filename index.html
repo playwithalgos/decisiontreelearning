@@ -2,7 +2,6 @@
 
 <head>
     <meta charset="utf-8">
-    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0/dist/svg.min.js"></script>
 
     <style>
         .dataset {
@@ -32,6 +31,21 @@
         }
 
 
+        .example {
+            border: 1px solid green;
+            border-radius: 8px;
+            background-color: rgb(147, 255, 154);
+            margin: 1px;
+        }
+
+
+
+        .bad {
+            border: 1px solid red;
+            border-radius: 8px;
+            background-color: rgb(255, 192, 192);
+        }
+
 
         .datasetnode {
             display: inline-flex;
@@ -47,64 +61,118 @@
 </head>
 
 <body>
+    <div style="display: none">
+        <svg id="emoji" viewBox="0 0 72 72" width=30 height=30 xmlns="http://www.w3.org/2000/svg">
+            <g id="color">
+                <path class="bottom" fill="#D0CFCE" stroke="#D0CFCE" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-miterlimit="10" stroke-width="2"
+                    d="M27.1244,42.9616v11.2545c0,0-0.1171,1.9012,2.5264,1.9012s11.7694,0,11.7694,0s2.2545,0.5562,2.2545-2.4086 c0-1.6448,0-6.6322,0-10.7472" />
+                <path class="bottom" fill="#D0CFCE" stroke="none" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-miterlimit="10" stroke-width="2"
+                    d="M27.1244,46.7322v8.0389c0,0-0.1171,1.358,2.5264,1.358s11.7694,0,11.7694,0s2.2545,0.3973,2.2545-1.7204 c0-1.1748,0-4.7373,0-7.6766" />
+                <path id="body" fill="#EA5A47" stroke="none"
+                    d="M60.996,33.9584c0,8.8366-11.1929,9-25,9s-25-0.1634-25-9s11.1929-23,25-23S60.996,25.1218,60.996,33.9584 z" />
+                <path class="shadow" fill="#FF888888" stroke="none"
+                    d="M60.996,33.9591c0,8.8374-11.194,9.0023-25.0039,9.0023c33.1736-7.5962,0-32.0031,0-32.0031 C49.802,10.9583,60.996,25.1217,60.996,33.9591z" />
+                <path class="spotted" fill="#FFFFFF" stroke="none" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-miterlimit="10" stroke-width="2"
+                    d="M22.7421,15.3869c0,0,4.6919,14.1211-10.9254,14.0122C11.8167,29.399,14.8217,20.3354,22.7421,15.3869z" />
+                <ellipse class="spotted" cx="35.996" cy="30.1489" rx="8.0208" ry="6.1759"
+                    transform="matrix(0.9993 -0.0382 0.0382 0.9993 -1.1252 1.3968)" fill="#FFFFFF" stroke="none"
+                    stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" />
+                <path class="spotted" fill="#D0CFCE" stroke="none" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-miterlimit="10" stroke-width="2"
+                    d="M49.1551,15.3869c0,0-4.6919,14.1211,10.9254,14.0122C60.0804,29.399,57.0754,20.3354,49.1551,15.3869z" />
+            </g>
+            <g id="hair" />
+            <g id="skin" />
+            <g id="skin-shadow" />
+            <g id="line">
+                <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"
+                    stroke-width="2"
+                    d="M27.1244,46.7322v8.0389c0,0-0.1171,1.358,2.5264,1.358s11.7694,0,11.7694,0s2.2545,0.3973,2.2545-1.7204 c0-1.1748,0-4.7373,0-7.6766" />
+                <path id="bodyBorder" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-miterlimit="10" stroke-width="2"
+                    d="M60.996,33.9584c0,8.8366-11.1929,9-25,9s-25-0.1634-25-9s11.1929-23,25-23S60.996,25.1218,60.996,33.9584z" />
+
+                <path class="spotted" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-miterlimit="10" stroke-width="2"
+                    d="M22.7421,15.3869c0,0,4.6919,14.1211-10.9254,14.0122C11.8167,29.399,14.8217,20.3354,22.7421,15.3869z" />
+                <ellipse class="spotted" cx="35.996" cy="30.1489" rx="8.0208" ry="6.1759"
+                    transform="matrix(0.9993 -0.0382 0.0382 0.9993 -1.1252 1.3968)" fill="none" stroke="#000000"
+                    stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2" />
+                <path class="spotted" fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-miterlimit="10" stroke-width="2"
+                    d="M49.1551,15.3869c0,0-4.6919,14.1211,10.9254,14.0122C60.0804,29.399,57.0754,20.3354,49.1551,15.3869z" />
+            </g>
+        </svg>
+    </div>
+
     <h1>Decision tree learning</h1>
 
     <script>
-        const dataset = [];
-        const attributes = ["dark", "spotted", "big", "thin", "radioactive"];
+        const attributes = ["dark", "spotted", "sharp", "bottomDark"];
 
-        function randomBoolean() {
-            return Math.round(Math.random());
+        const dataset = generateDataset();
+
+        function randomBoolean() { return Math.round(Math.random()); }
+
+        function generateDataset() {
+            for (let j = 0; j < 40; j++) {
+                let dataset = [];
+                for (let i = 0; i < 256; i++) {
+                    const mushroom = {
+                        dark: randomBoolean(),
+                        spotted: randomBoolean(),
+                        bottomDark: randomBoolean(),
+                        sharp: randomBoolean(),
+                        class: Math.round(Math.random())
+                    };
+
+                    if (dataset.map(JSON.stringify).indexOf(JSON.stringify({ ...mushroom, class: 1 - mushroom.class })) == -1)
+                        dataset.push(mushroom);
+                }
+                let min = 1000;
+                let max = 0;
+                for (const a of attributes) {
+                    const gini = GiniImpurity(dataset, a);
+                    if (min > gini) min = gini;
+                    if (max < gini) max = gini;
+                }
+
+                const ok = max > 2 * min;
+
+                if (ok)
+                    return dataset;
+            }
+
         }
 
-        for (let i = 0; i < 12; i++) {
-            const mushroom = {
-                dark: randomBoolean(),
-                spotted: randomBoolean(),
-                big: randomBoolean(),
-                thin: randomBoolean(),
-                radioactive: randomBoolean(),
-                class: Math.round(Math.random())
-            };
-
-            if (dataset.map(JSON.stringify).indexOf(JSON.stringify({ ...mushroom, class: 1 - mushroom.class })) == -1)
-                dataset.push(mushroom);
-        }
 
         function createMushRoomElement(mushroom) {
-            const draw = SVG().addTo('#dataset').size(32, 64);
-            const colorHead = mushroom.dark ? '#885555' : '#ccaaaa'
-            draw.circle(16).move(8, 22).fill('bbbbbb').stroke("black");
-            const head = draw.circle(30).move(0, 1).fill(colorHead).stroke("black");
+            const el = document.getElementById("emoji").cloneNode(true);
+            el.classList.add("example");
 
-            if (mushroom.radioactive)
-                head
-                    .animate({
-                        duration: 1000,
-                        delay: 0,
-                        when: 'now',
-                        swing: true,
-                        times: 5,
-                        wait: 0
-                    }).attr({ fill: mushroom.dark ? '#55aa55' : '#ccffaa' }).persist();
+            if (!mushroom.class)
+                el.classList.add("bad");
 
-            if (mushroom.spotted) {
-                draw.circle(8).move(16, 16).fill('orange').stroke("black");
-                draw.circle(8).move(10, 4).fill('orange').stroke("black");
-                draw.circle(8).move(5, 17).fill('orange').stroke("black");
-            }
-            if (mushroom.thin)
-                draw.scale(0.6, 1);
-            if (!mushroom.big)
-                draw.scale(0.7);
+            document.getElementById("dataset").appendChild(el);
 
-            if (mushroom.class) {
-                draw.polyline([[16, 16], [24, 24], [32, 12]]).move(8, 40).stroke({ color: "green", width: 5 }).fill("none")
-            }
-            else {
-                draw.polyline([[0, 0], [16, 16], [8, 8], [16, 0], [0, 16]]).move(8, 40).stroke({ color: "red", width: 5 }).fill("none")
+            if (!mushroom.spotted)
+                el.querySelectorAll(".spotted").forEach(element => {
+                    element.remove();
+                });
+
+            el.querySelector("#body").setAttribute("fill", mushroom.dark ? "#EA5A47" : "#FAAAA7");
+            if (mushroom.sharp) {
+                el.querySelector("#body").setAttribute("d", "m 60.996,33.9584 c 0,8.8366 -11.1929,9 -25,9 -13.8071,0 -22.288366,0.813215 -25,-9 C 8.6424298,25.440994 34.566952,5.0289032 37.067395,4.8831149 40.054255,4.7089661 60.996,25.1218 60.996,33.9584 Z");
+                el.querySelector("#bodyBorder").setAttribute("d", "m 60.996,33.9584 c 0,8.8366 -11.1929,9 -25,9 -13.8071,0 -22.288366,0.813215 -25,-9 C 8.6424298,25.440994 34.566952,5.0289032 37.067395,4.8831149 40.054255,4.7089661 60.996,25.1218 60.996,33.9584 Z");
             }
 
+            if (mushroom.bottomDark)
+                el.querySelectorAll(".bottom").forEach(element => {
+                    element.setAttribute("fill", mushroom.bottomDark ? "#8D6F6E" : "#D0CFCE")
+                });
         }
 
 
@@ -112,7 +180,7 @@
             const eldataset = document.createElement("div");
             eldataset.classList.add("dataset");
             eldataset.id = "dataset";
-            document.body.appendChild(eldataset); // for SVG.js
+            document.body.appendChild(eldataset);
             for (const mushroom of dataset)
                 createMushRoomElement(mushroom);
             eldataset.id = null;
@@ -212,7 +280,7 @@
             const PY0Xa1 = dataset1.filter((m) => 1 - m.class).length / dataset1.length;
             const PY1Xa1 = dataset1.filter((m) => m.class).length / dataset1.length;
 
-       
+
             function log2Corrected(x) {
                 if (x <= 0)
                     return 0;
@@ -220,7 +288,7 @@
             }
             return -(PY0Xa0 * log2Corrected(PY0Xa0 / PXa0)
                 + PY1Xa0 * log2Corrected(PY1Xa0 / PXa0)
-                + PY0Xa1 *log2Corrected(PY0Xa0 / PXa1)
+                + PY0Xa1 * log2Corrected(PY0Xa0 / PXa1)
                 + PY1Xa1 * log2Corrected(PY1Xa1 / PXa1));
 
 
