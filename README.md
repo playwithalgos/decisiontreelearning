@@ -4,10 +4,21 @@
 
 ![image](https://github.com/playwithalgos/decisiontreelearning/assets/43071857/608b7c79-4484-499d-b313-754e93294031)
 
+## Features...
+
+### ... of the tool
+
 - Generate a random and interesting dataset of mushrooms
 - Choose yourself the attribute to split on
 - Compute the Gini and the entropy
 - Displays how the dataset is split
+
+### ...of the mushrooms
+- dark
+- bottom dark
+- splotted
+- sharp
+
 
 ## Old screenshot
 
