@@ -23,3 +23,8 @@
 ## Old screenshot
 
 ![image](https://github.com/playwithalgos/decisiontreelearning/assets/43071857/94f5839c-c737-4620-b95e-7aa84926638c)
+
+
+## Acknowledgement
+
+The pictures of the mushrooms (in the current version, not the old one) are inspired from the mushroom in https://github.com/hfg-gmuend/openmoji
