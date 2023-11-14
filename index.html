@@ -4,12 +4,21 @@
     <meta charset="utf-8">
 
     <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 16px;
+            font-family: sans-serif;
+        }
         .dataset {
             width: 256px;
             margin: 4px;
-            border: 1px solid gray;
             padding: 4px;
-            border-radius: 16px;
         }
 
         .datasetchildren {
@@ -20,38 +29,77 @@
 
         }
 
-        .datasetchildren:not(:empty) {
-            border-left: 2px solid black;
-        }
 
-        .currentAttribute {
-            font-weight: bold;
-            border: 2px solid black;
-
-        }
 
 
         .example {
-            border: 1px solid green;
-            border-radius: 8px;
-            background-color: rgb(147, 255, 154);
+            border-radius: 16px;
             margin: 1px;
         }
 
+        .attributeSplitting {
+            border-top: 4px solid aqua;
+        }
 
+        .class0 {
+            background-color: rgb(147, 255, 154);
 
-        .bad {
-            border: 1px solid red;
-            border-radius: 8px;
+        }
+
+        .class1 {
             background-color: rgb(255, 192, 192);
+        }
+
+
+        .class2 {
+            background-color: rgb(255, 255, 175);
+        }
+
+        .class3 {
+            background-color: rgb(184, 175, 255);
+        }
+
+
+        .tree {
+            display: inline-flex;
+            margin-bottom: 2px;
+            align-items: center;
         }
 
 
         .datasetnode {
             display: inline-flex;
-            margin-bottom: 2px;
+            flex-direction: row;
+            align-items: center;
+            padding-right: 16px;
         }
 
+
+        .buttons {
+            display: inline-block;
+        }
+
+
+        .attribute {
+            width: 150px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            background-color: black;
+            color: white;
+            margin: 2px;
+            border: 2px solid white;
+        }
+
+
+        .currentAttribute {
+            font-weight: bold;
+            border: 4px solid aqua;
+            color: aqua;
+            background-color: darkblue;
+        }
 
         .info {
             font-size: x-small;
@@ -108,7 +156,7 @@
         </svg>
     </div>
 
-    <h1>Decision tree learning</h1>
+    <h1>Decision<br/> tree<br/> learning</h1>
 
     <script>
         const attributes = ["dark", "spotted", "sharp", "bottomDark"];
@@ -118,7 +166,9 @@
         function randomBoolean() { return Math.round(Math.random()); }
 
         function generateDataset() {
-            for (let j = 0; j < 40; j++) {
+            let bestDataset = undefined;
+            let qualitySoFar = 0;
+            for (let j = 0; j < 80; j++) {
                 let dataset = [];
                 for (let i = 0; i < 256; i++) {
                     const mushroom = {
@@ -126,7 +176,7 @@
                         spotted: randomBoolean(),
                         bottomDark: randomBoolean(),
                         sharp: randomBoolean(),
-                        class: Math.round(Math.random())
+                        class: Math.round(1 * Math.random())
                     };
 
                     if (dataset.map(JSON.stringify).indexOf(JSON.stringify({ ...mushroom, class: 1 - mushroom.class })) == -1)
@@ -135,17 +185,20 @@
                 let min = 1000;
                 let max = 0;
                 for (const a of attributes) {
-                    const gini = GiniImpurity(dataset, a);
+                    const gini = impurityMean(dataset, a, Gini);
                     if (min > gini) min = gini;
                     if (max < gini) max = gini;
                 }
 
-                const ok = max > 2 * min;
+                let quality = max - min;
 
-                if (ok)
-                    return dataset;
+                if (quality > qualitySoFar) {
+                    bestDataset = dataset;
+                    qualitySoFar = quality;
+                }
+
             }
-
+            return bestDataset;
         }
 
 
@@ -153,8 +206,7 @@
             const el = document.getElementById("emoji").cloneNode(true);
             el.classList.add("example");
 
-            if (!mushroom.class)
-                el.classList.add("bad");
+            el.classList.add("class" + mushroom.class);
 
             document.getElementById("dataset").appendChild(el);
 
@@ -195,38 +247,48 @@
 
         function createElementDatasetNode(dataset) {
             const el = document.createElement("div");
-            el.classList.add("datasetnode");
+            el.classList.add("tree");
 
             const eldataset = createElementDataset(dataset);
             const eldatasetAndButton = document.createElement("div");
+            eldatasetAndButton.classList.add("datasetnode")
 
             const elChildren = document.createElement("div");
             elChildren.classList.add("datasetchildren")
 
-            const elButtons = document.createElement("div")
+            const elButtons = document.createElement("div");
+            elButtons.classList.add("buttons");
             if (!isPure(dataset))
                 for (const a of attributes) {
-                    const gini = GiniImpurity(dataset, a);
-                    const entropy = EntropyImpurity(dataset, a);
+                    const gini = impurityMean(dataset, a, Gini);
+                    const entropyV = impurityMean(dataset, a, entropy);
 
                     if (!isNaN(gini)) {
                         const button = document.createElement("button");
 
                         button.innerHTML = a +
                             "<br/><span class='info'>gini: " + gini.toFixed(2) + "</span>" +
-                            "<br/><span class='info'>entropy: " + entropy.toFixed(2) + "</span>";
+                            "<br/><span class='info'>entropy: " + entropyV.toFixed(2) + "</span>";
                         elButtons.appendChild(button);
                         button.onclick = () => {
                             elChildren.innerHTML = "";
                             const ell = document.createElement("div");
+                            ell.classList.add("attribute");
+                            //   ell.classList.add("attributeSplitting");
                             ell.innerHTML = a;
-                            elChildren.appendChild(ell);
-                            elChildren.appendChild(createElementDatasetNode(dataset.filter((m) => m[a])));
+                            const node = createElementDatasetNode(dataset.filter((m) => m[a]));
+                            node.prepend(ell);
+                            elChildren.appendChild(node);
 
                             const ell2 = document.createElement("div");
                             ell2.innerHTML = "not " + a;
-                            elChildren.appendChild(ell2);
-                            elChildren.appendChild(createElementDatasetNode(dataset.filter((m) => !m[a])));
+                            ell2.classList.add("attribute");
+
+                            const node2 = createElementDatasetNode(dataset.filter((m) => !m[a]));
+                            node2.classList.add("attributeSplitting");
+
+                            node2.prepend(ell2);
+                            elChildren.appendChild(node2);
                             for (const c of elButtons.children)
                                 c.classList.remove("currentAttribute");
                             button.classList.add("currentAttribute");
@@ -252,22 +314,52 @@
 
         createElementDatasetNode(dataset);
 
-        function GiniImpurity(dataset, attribute) {
-            const dataset0 = dataset.filter((m) => !m[attribute]);
-            const dataset1 = dataset.filter((m) => m[attribute]);
 
-            const PXa0 = dataset0.length;
-            const PXa1 = dataset1.length;
-            const PY0Xa0 = dataset0.filter((m) => 1 - m.class).length / dataset0.length;
-            const PY1Xa0 = dataset0.filter((m) => m.class).length / dataset0.length;
-            const PY0Xa1 = dataset1.filter((m) => 1 - m.class).length / dataset1.length;
-            const PY1Xa1 = dataset1.filter((m) => m.class).length / dataset1.length;
 
+        function Gini(dataset) {
             function c(x) {
                 return x * (1 - x);
             }
-            return PXa0 * (c(PY0Xa0) + c(PY1Xa0)) + PXa1 * (c(PY0Xa1) + c(PY1Xa1));
+
+            let result = 0;
+            for (let y = 0; y < 2; y++)
+                result += c(dataset.filter((m) => y == m.class).length / dataset.length);
+            return result;
         }
+
+
+
+        function entropy(dataset) {
+            function log2Corrected(x) {
+                if (x <= 0)
+                    return 0;
+                else return Math.log2(x);
+            }
+
+            function c(x) {
+                return -x * log2Corrected(x);
+            }
+
+            let result = 0;
+            for (let y = 0; y < 2; y++)
+                result += c(dataset.filter((m) => y == m.class).length / dataset.length);
+            return result;
+        }
+
+
+        function impurityMean(dataset, attribute, f) {
+            const datasets = [dataset.filter((m) => !m[attribute]), dataset.filter((m) => m[attribute])];
+
+            let result = 0;
+            for (let v = 0; v < 2; v++)
+                result += datasets[v].length / dataset.length * f(datasets[v]);
+
+            return result;
+        }
+
+
+
+
 
         function EntropyImpurity(dataset, attribute) {
             const dataset0 = dataset.filter((m) => !m[attribute]);
@@ -281,11 +373,7 @@
             const PY1Xa1 = dataset1.filter((m) => m.class).length / dataset1.length;
 
 
-            function log2Corrected(x) {
-                if (x <= 0)
-                    return 0;
-                else return Math.log2(x);
-            }
+
             return -(PY0Xa0 * log2Corrected(PY0Xa0 / PXa0)
                 + PY1Xa0 * log2Corrected(PY1Xa0 / PXa0)
                 + PY0Xa1 * log2Corrected(PY0Xa0 / PXa1)
